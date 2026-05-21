@@ -1,0 +1,859 @@
+<!-- Apple PWA Meta Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="GardenBesties">
+<link rel="apple-touch-icon" href="[https://fav.farm/](https://fav.farm/)🌸">
+
+<style>
+    :root {
+        --bg-color: #FFF5EC;
+        --card-bg: #FFFFFF;
+        --primary: #FF9A8B;
+        --secondary: #A0E8AF;
+        --text-main: #5D4037;
+        --text-light: #8D6E63;
+        --accent: #FFD54F;
+        --danger: #FF8A65;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
+        overflow-x: hidden;
+    }
+
+    header {
+        background-color: var(--secondary);
+        color: var(--text-main);
+        padding: 20px 16px 15px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 15px rgba(160, 232, 175, 0.4);
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+    }
+
+    .tab-content { display: none; padding: 20px 16px; animation: fadeIn 0.3s ease-in-out; }
+    .tab-content.active { display: block; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 20px rgba(93, 64, 55, 0.08);
+        border: 2px solid transparent;
+    }
+    
+    .search-bar, .input-area {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid var(--secondary);
+        border-radius: 20px;
+        font-size: 1.1rem;
+        color: var(--text-main);
+        background: #fff;
+        outline: none;
+        margin-bottom: 15px;
+        transition: border-color 0.2s;
+    }
+    .search-bar:focus, .input-area:focus { border-color: var(--primary); }
+
+    button.btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 20px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        width: 100%;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(255, 154, 139, 0.4);
+        transition: transform 0.1s;
+    }
+    button.btn:active { transform: scale(0.96); }
+
+    .plant-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    .plant-emoji { font-size: 2.5rem; background: var(--bg-color); padding: 10px; border-radius: 20px; }
+    .plant-title { font-size: 1.4rem; font-weight: bold; color: var(--primary); }
+    .plant-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px; }
+    .tag { background: var(--secondary); color: var(--text-main); font-size: 0.8rem; padding: 4px 10px; border-radius: 12px; }
+    .variety-tag { background: #FFE4E1; color: #D84315; border: 1px dashed #FFAB91; font-size: 0.75rem; }
+
+    .instruction-row { margin-bottom: 12px; font-size: 0.95rem; line-height: 1.4; }
+    .instruction-row strong { color: var(--primary); }
+    
+    .calculator-box {
+        background: var(--bg-color);
+        padding: 15px;
+        border-radius: 16px;
+        margin-top: 15px;
+    }
+    .date-input {
+        width: 100%; padding: 10px; border-radius: 12px; border: 2px solid var(--primary); margin: 10px 0; font-size: 1rem;
+    }
+    .timeline { margin-top: 10px; font-size: 0.9rem; }
+    .timeline-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ccc; }
+
+    .match-card { border-color: var(--secondary); }
+    .warning-card { border-color: var(--danger); background: #FFF3E0; }
+    .combo-emoji { font-size: 1.8rem; letter-spacing: 5px; }
+
+    nav {
+        position: fixed; bottom: 0; left: 0; width: 100%;
+        background: var(--card-bg);
+        display: flex; justify-content: space-around;
+        padding: 10px 0 calc(env(safe-area-inset-bottom) + 10px);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        border-top-left-radius: 24px; border-top-right-radius: 24px;
+        z-index: 100;
+    }
+    .nav-btn {
+        background: none; border: none; color: var(--text-light);
+        display: flex; flex-direction: column; align-items: center;
+        font-size: 0.8rem; font-weight: bold; width: 50%; padding: 10px;
+    }
+    .nav-btn.active { color: var(--primary); }
+    .nav-icon { font-size: 1.8rem; margin-bottom: 4px; transition: transform 0.2s; }
+    .nav-btn.active .nav-icon { transform: scale(1.2); }
+    
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); }
+    .empty-state-emoji { font-size: 4rem; margin-bottom: 10px; }
+</style>
+<header>🌸 Garden Besties 🌿</header>
+
+<main id="tab-search" class="tab-content active">
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search veggies, herbs, flowers..." onkeyup="handleSearch()">
+    <div id="searchResults">
+        <div class="empty-state">
+            <div class="empty-state-emoji">🌱</div>
+            <p>Type a plant to get care info and calculate dates!</p>
+        </div>
+    </div>
+</main>
+
+<main id="tab-companions" class="tab-content">
+    <div class="card">
+        <h2 style="color:var(--primary); margin-bottom: 10px;">🤝 Matchmaker</h2>
+        <p style="font-size: 0.9rem; margin-bottom: 15px;">What seeds do you have? Enter them separated by commas!</p>
+        <textarea id="seedsInput" class="input-area" rows="3" placeholder="e.g. spinach, mint, lettuce, tomato"></textarea>
+        <button class="btn" onclick="analyzeCompanions()">✨ Analyze Seeds ✨</button>
+    </div>
+    <div id="companionResults"></div>
+</main>
+
+<nav>
+    <button class="nav-btn active" onclick="switchTab('search', this)">
+        <span class="nav-icon">📖</span>
+        <span>Encyclopedia</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('companions', this)">
+        <span class="nav-icon">🤝</span>
+        <span>Companions</span>
+    </button>
+</nav>
+
+<script>
+    const plantDB = [
+        {
+            id: 'tomato', name: 'Tomato', emoji: '🍅',
+            varieties: ['Cherry', 'Roma', 'Beefsteak', 'Heirloom', 'Grape', 'San Marzano', 'Brandywine'],
+            germinationDays: 7, fertilizeDays: 14, harvestDays: 75, waterFreq: 2,
+            companions: ['basil', 'marigold', 'carrot', 'onion', 'spinach', 'garlic', 'asparagus', 'oregano'],
+            enemies: ['potato', 'cabbage', 'fennel', 'corn', 'dill', 'broccoli'],
+            instructions: {
+                sow: "Sow 1/4 inch deep indoors 6 weeks before last frost.",
+                water: "Keep soil consistently moist. Water at the base, not the leaves.",
+                fertilize: "Use a phosphorus-rich fertilizer once blossoms appear.",
+                yield: "Harvest when fruit is fully colored and slightly soft."
+            }
+        },
+        {
+            id: 'pepper', name: 'Pepper', emoji: '🌶️',
+            varieties: ['Bell', 'Jalapeño', 'Habanero', 'Cayenne', 'Poblano', 'Sweet', 'Chili', 'Shishito', 'Ghost'],
+            germinationDays: 10, fertilizeDays: 21, harvestDays: 75, waterFreq: 3,
+            companions: ['tomato', 'basil', 'onion', 'spinach', 'cilantro', 'carrot'],
+            enemies: ['bean', 'cabbage', 'fennel'],
+            instructions: {
+                sow: "Start indoors 8 weeks before last frost. Needs warm soil.",
+                water: "Water deeply but allow soil to dry slightly between waterings.",
+                fertilize: "Feed when the first flowers appear.",
+                yield: "Snip stems with scissors; picking by hand can break branches."
+            }
+        },
+        {
+            id: 'cucumber', name: 'Cucumber', emoji: '🥒',
+            varieties: ['English', 'Pickling', 'Slicing', 'Lebanese', 'Persian', 'Gherkin'],
+            germinationDays: 7, fertilizeDays: 14, harvestDays: 60, waterFreq: 2,
+            companions: ['corn', 'bean', 'radish', 'sunflower', 'marigold', 'pea'],
+            enemies: ['potato', 'sage', 'melon'],
+            instructions: {
+                sow: "Direct sow 1 inch deep in warm soil after frost.",
+                water: "Needs constant moisture. Inconsistent watering makes them bitter.",
+                fertilize: "Liquid feed every 2 weeks once fruits set.",
+                yield: "Pick frequently when medium-sized to encourage more to grow."
+            }
+        },
+        {
+            id: 'zucchini', name: 'Zucchini & Squash', emoji: '🥒',
+            varieties: ['Zucchini', 'Yellow Squash', 'Butternut', 'Acorn', 'Spaghetti', 'Pattypan', 'Crookneck'],
+            germinationDays: 7, fertilizeDays: 21, harvestDays: 50, waterFreq: 2,
+            companions: ['corn', 'bean', 'radish', 'marigold', 'nasturtium'],
+            enemies: ['potato', 'pumpkin'],
+            instructions: {
+                sow: "Sow 1 inch deep in mounds of warm soil.",
+                water: "Water heavily at the base. Keep leaves dry to prevent mildew.",
+                fertilize: "Heavy feeders; use compost and all-purpose fertilizer.",
+                yield: "Harvest when small (6-8 inches) for best flavor and tenderness."
+            }
+        },
+        {
+            id: 'onion', name: 'Onion', emoji: '🧅',
+            varieties: ['Red Onion', 'White Onion', 'Yellow Onion', 'Scallions', 'Shallots', 'Spring Onion', 'Leeks'],
+            germinationDays: 10, fertilizeDays: 30, harvestDays: 100, waterFreq: 3,
+            companions: ['carrot', 'cabbage', 'lettuce', 'tomato', 'pepper', 'chamomile'],
+            enemies: ['bean', 'pea', 'asparagus'],
+            instructions: {
+                sow: "Plant sets 1 inch deep or seeds 1/4 inch deep.",
+                water: "Shallow roots need steady moisture.",
+                fertilize: "Nitrogen-heavy fertilizer every few weeks until bulbs swell.",
+                yield: "Harvest when the leafy tops fall over and start to yellow."
+            }
+        },
+        {
+            id: 'garlic', name: 'Garlic', emoji: '🧄',
+            varieties: ['Hardneck', 'Softneck', 'Elephant Garlic', 'Wild Garlic'],
+            germinationDays: 14, fertilizeDays: 30, harvestDays: 240, waterFreq: 4,
+            companions: ['tomato', 'cabbage', 'rose', 'spinach'],
+            enemies: ['bean', 'pea', 'parsley'],
+            instructions: {
+                sow: "Plant individual cloves pointy-side up in autumn, 2 inches deep.",
+                water: "Water moderately, stop watering 2 weeks before harvest.",
+                fertilize: "Feed heavily with nitrogen in early spring.",
+                yield: "Harvest in mid-summer when lower leaves turn brown."
+            }
+        },
+        {
+            id: 'potato', name: 'Potato', emoji: '🥔',
+            varieties: ['Russet', 'Yukon Gold', 'Red Potato', 'Fingerling', 'Sweet Potato', 'Yam'],
+            germinationDays: 14, fertilizeDays: 30, harvestDays: 90, waterFreq: 3,
+            companions: ['bean', 'cabbage', 'corn', 'eggplant'],
+            enemies: ['tomato', 'cucumber', 'sunflower', 'pumpkin'],
+            instructions: {
+                sow: "Plant seed potatoes 4 inches deep. 'Hill' soil around them as they grow.",
+                water: "Keep soil evenly moist, especially when flowering.",
+                fertilize: "Mix compost into soil before planting.",
+                yield: "Dig up after the plant's leafy tops have died back."
+            }
+        },
+        {
+            id: 'bean', name: 'Bean', emoji: '🫘',
+            varieties: ['Green Bean', 'Black Bean', 'Pinto Bean', 'Lima', 'Kidney', 'Snap', 'Bush Bean', 'Pole Bean', 'Runner Bean', 'Edamame'],
+            germinationDays: 8, fertilizeDays: 30, harvestDays: 55, waterFreq: 3,
+            companions: ['corn', 'potato', 'cucumber', 'radish', 'strawberry'],
+            enemies: ['onion', 'garlic', 'pepper'],
+            instructions: {
+                sow: "Direct sow 1 inch deep. Do not soak seeds before planting.",
+                water: "Water at base. Keep leaves dry.",
+                fertilize: "Rarely needed; they fix their own nitrogen from the air.",
+                yield: "Pick pods when firm and crisp, before seeds bulge."
+            }
+        },
+        {
+            id: 'pea', name: 'Pea', emoji: '🫛',
+            varieties: ['Sweet Pea', 'Snap Pea', 'Snow Pea', 'Split Pea', 'English Pea', 'Garden Pea'],
+            germinationDays: 8, fertilizeDays: 30, harvestDays: 60, waterFreq: 3,
+            companions: ['carrot', 'turnip', 'radish', 'cucumber', 'corn'],
+            enemies: ['onion', 'garlic', 'potato'],
+            instructions: {
+                sow: "Sow 1 inch deep in early spring. They love cool weather.",
+                water: "Water sparsely until they flower, then water regularly.",
+                fertilize: "Little needed, add some compost at planting.",
+                yield: "Pick frequently to keep the plant producing."
+            }
+        },
+        {
+            id: 'spinach', name: 'Spinach', emoji: '🍃',
+            varieties: ['Savoy', 'Semi-savoy', 'Flat-leaf', 'Malabar', 'Baby Spinach', 'Mustard Greens'],
+            germinationDays: 6, fertilizeDays: 20, harvestDays: 45, waterFreq: 3,
+            companions: ['strawberry', 'cabbage', 'radish', 'tomato', 'onion'],
+            enemies: [],
+            instructions: {
+                sow: "Sow seeds 1/2 inch deep directly outdoors in early spring or fall.",
+                water: "Water regularly to keep the soil evenly moist.",
+                fertilize: "Feed with high-nitrogen fertilizer halfway through growth.",
+                yield: "Cut outer leaves as needed when they are large enough to eat."
+            }
+        },
+        {
+            id: 'lettuce', name: 'Lettuce', emoji: '🥬',
+            varieties: ['Romaine', 'Iceberg', 'Butterhead', 'Arugula', 'Mixed Greens', 'Oakleaf', 'Lollo Rosso'],
+            germinationDays: 7, fertilizeDays: 14, harvestDays: 45, waterFreq: 2,
+            companions: ['carrot', 'radish', 'strawberry', 'cucumber', 'onion'],
+            enemies: ['cabbage', 'parsley'],
+            instructions: {
+                sow: "Sow seeds shallowly, they need light to germinate.",
+                water: "Shallow roots need frequent, light watering.",
+                fertilize: "Use a balanced liquid fertilizer every 2 weeks.",
+                yield: "Harvest in the morning when leaves are crisp."
+            }
+        },
+        {
+            id: 'cabbage', name: 'Cabbage', emoji: '🥬',
+            varieties: ['Green Cabbage', 'Red Cabbage', 'Savoy Cabbage', 'Napa Cabbage', 'Bok Choy', 'Brussels Sprouts'],
+            germinationDays: 7, fertilizeDays: 21, harvestDays: 70, waterFreq: 2,
+            companions: ['bean', 'onion', 'potato', 'chamomile', 'thyme'],
+            enemies: ['strawberry', 'tomato', 'pepper'],
+            instructions: {
+                sow: "Sow 1/4 inch deep indoors, transplant out before last frost.",
+                water: "Inconsistent watering will cause the heads to split.",
+                fertilize: "Use high nitrogen feed every three weeks.",
+                yield: "Harvest when the head feels rock solid to the squeeze."
+            }
+        },
+        {
+            id: 'broccoli', name: 'Broccoli', emoji: '🥦',
+            varieties: ['Calabrese', 'Romanesco', 'Broccolini', 'Rapini'],
+            germinationDays: 7, fertilizeDays: 21, harvestDays: 70, waterFreq: 2,
+            companions: ['celery', 'onion', 'potato', 'rosemary'],
+            enemies: ['tomato', 'strawberry'],
+            instructions: {
+                sow: "Sow 1/2 inch deep. Prefers cool weather.",
+                water: "Requires consistent moisture to develop heads.",
+                fertilize: "Side-dress with compost or fertilizer 3 weeks after planting.",
+                yield: "Harvest the main head before the tiny green buds open into yellow flowers."
+            }
+        },
+        {
+            id: 'eggplant', name: 'Eggplant', emoji: '🍆',
+            varieties: ['Globe', 'Japanese', 'White', 'Fairy Tale', 'Rosa Bianca', 'Aubergine'],
+            germinationDays: 10, fertilizeDays: 21, harvestDays: 75, waterFreq: 2,
+            companions: ['bean', 'pepper', 'potato', 'thyme', 'spinach'],
+            enemies: ['fennel'],
+            instructions: {
+                sow: "Start indoors 8 weeks before frost. Needs heat.",
+                water: "Water deeply and regularly.",
+                fertilize: "Heavy feeder. Apply balanced fertilizer when blooms appear.",
+                yield: "Harvest when skin is dark and glossy; dull skin means it's overripe."
+            }
+        },
+        {
+            id: 'carrot', name: 'Carrot', emoji: '🥕',
+            varieties: ['Danvers', 'Imperator', 'Nantes', 'Chantenay', 'Rainbow', 'Baby Carrot'],
+            germinationDays: 14, fertilizeDays: 30, harvestDays: 70, waterFreq: 4,
+            companions: ['tomato', 'lettuce', 'onion', 'pea', 'rosemary'],
+            enemies: ['dill', 'parsnip', 'coriander'],
+            instructions: {
+                sow: "Sow directly into loose, stone-free soil, 1/4 inch deep.",
+                water: "Water deeply to encourage roots to grow down.",
+                fertilize: "Use a low-nitrogen, high-potassium fertilizer.",
+                yield: "Pull when the tops popping out of soil look wide enough."
+            }
+        },
+        {
+            id: 'radish', name: 'Radish', emoji: '🔴',
+            varieties: ['Daikon', 'Cherry Belle', 'French Breakfast', 'Watermelon Radish', 'Black Spanish'],
+            germinationDays: 5, fertilizeDays: 14, harvestDays: 25, waterFreq: 2,
+            companions: ['cucumber', 'lettuce', 'pea', 'spinach', 'squash'],
+            enemies: ['hyssop'],
+            instructions: {
+                sow: "Sow directly 1/2 inch deep. Great for filling gaps between slower plants.",
+                water: "Water frequently. Dry soil makes them woody and spicy.",
+                fertilize: "Not usually needed due to fast growth.",
+                yield: "Pull as soon as they are bite-sized (about 3-4 weeks)."
+            }
+        },
+        {
+            id: 'corn', name: 'Corn', emoji: '🌽',
+            varieties: ['Sweet Corn', 'Popcorn', 'Flint Corn', 'Dent Corn', 'Baby Corn', 'Maize'],
+            germinationDays: 7, fertilizeDays: 14, harvestDays: 80, waterFreq: 2,
+            companions: ['bean', 'squash', 'cucumber', 'melon', 'potato'],
+            enemies: ['tomato'],
+            instructions: {
+                sow: "Direct sow 1 inch deep in blocks (not single rows) for wind pollination.",
+                water: "Needs lots of water, especially when tassels appear.",
+                fertilize: "Extremely heavy nitrogen feeders.",
+                yield: "Harvest when silks turn brown and dry, and kernels squirt milky liquid if pierced."
+            }
+        },
+        {
+            id: 'watermelon', name: 'Watermelon & Melon', emoji: '🍉',
+            varieties: ['Seedless', 'Picnic', 'Icebox', 'Yellow', 'Cantaloupe', 'Honeydew', 'Muskmelon'],
+            germinationDays: 10, fertilizeDays: 21, harvestDays: 90, waterFreq: 2,
+            companions: ['corn', 'radish', 'marigold', 'sunflower'],
+            enemies: ['potato'],
+            instructions: {
+                sow: "Sow 1 inch deep in warm soil.",
+                water: "Water heavily while growing, but reduce water 2 weeks before harvest for sweeter fruit.",
+                fertilize: "Feed with high nitrogen early on, switch to potassium later.",
+                yield: "Ready when the spot resting on the ground turns from white to yellow."
+            }
+        },
+        {
+            id: 'pumpkin', name: 'Pumpkin', emoji: '🎃',
+            varieties: ['Sugar Pumpkin', 'Jack-o\'-lantern', 'Cinderella', 'Hubbard', 'Giant'],
+            germinationDays: 7, fertilizeDays: 21, harvestDays: 100, waterFreq: 2,
+            companions: ['corn', 'bean', 'marigold', 'melon'],
+            enemies: ['potato'],
+            instructions: {
+                sow: "Sow 1 inch deep in mounds. They need lots of space.",
+                water: "Water at the base deeply. Keep leaves dry.",
+                fertilize: "Feed every two weeks with compost tea or liquid fertilizer.",
+                yield: "Harvest when the rind is hard enough to resist your fingernail."
+            }
+        },
+        {
+            id: 'strawberry', name: 'Strawberry', emoji: '🍓',
+            varieties: ['June-bearing', 'Everbearing', 'Day-neutral', 'Alpine', 'Wild Strawberry'],
+            germinationDays: 21, fertilizeDays: 30, harvestDays: 90, waterFreq: 2,
+            companions: ['bush bean', 'spinach', 'lettuce', 'onion', 'thyme'],
+            enemies: ['cabbage', 'broccoli', 'tomato', 'potato'],
+            instructions: {
+                sow: "Plant crowns so the middle (crown) is just above soil level.",
+                water: "Needs 1-2 inches of water per week.",
+                fertilize: "Fertilize in early spring and again after harvest.",
+                yield: "Pick when fully red; they do not ripen after being picked."
+            }
+        },
+        {
+            id: 'mint', name: 'Mint', emoji: '🌿',
+            varieties: ['Peppermint', 'Spearmint', 'Chocolate Mint', 'Apple Mint', 'Lemon Balm', 'Catnip'],
+            germinationDays: 12, fertilizeDays: 30, harvestDays: 60, waterFreq: 2,
+            companions: ['cabbage', 'tomato', 'pea'],
+            enemies: ['chamomile'],
+            instructions: {
+                sow: "Plant just below the soil surface. Best grown in pots (very invasive).",
+                water: "Loves moist soil, water every 2 days.",
+                fertilize: "Lightly fertilize in spring.",
+                yield: "Snip leaves right above a leaf node to encourage bushiness."
+            }
+        },
+        {
+            id: 'basil', name: 'Basil', emoji: '🌱',
+            varieties: ['Sweet Basil', 'Thai Basil', 'Lemon Basil', 'Holy Basil', 'Purple Basil', 'Genovese'],
+            germinationDays: 10, fertilizeDays: 21, harvestDays: 60, waterFreq: 3,
+            companions: ['tomato', 'pepper', 'marigold', 'oregano', 'chamomile'],
+            enemies: ['rue'],
+            instructions: {
+                sow: "Plant 1/4 inch deep. Requires warm soil.",
+                water: "Water when the top inch of soil is dry.",
+                fertilize: "Feed every 4-6 weeks with an all-purpose fertilizer.",
+                yield: "Pinch off the top leaves regularly; pinch off any flowers."
+            }
+        },
+        {
+            id: 'cilantro', name: 'Cilantro & Coriander', emoji: '🌿',
+            varieties: ['Coriander', 'Leaf Cilantro', 'Culantro'],
+            germinationDays: 10, fertilizeDays: 30, harvestDays: 45, waterFreq: 3,
+            companions: ['spinach', 'tomato', 'pepper', 'onion'],
+            enemies: ['fennel'],
+            instructions: {
+                sow: "Direct sow 1/2 inch deep. Prefers cool weather; bolts in heat.",
+                water: "Keep soil consistently moist.",
+                fertilize: "Light feeder. Add compost before planting.",
+                yield: "Harvest leaves often. Let it go to seed to harvest coriander spices."
+            }
+        },
+        {
+            id: 'dill', name: 'Dill', emoji: '🌿',
+            varieties: ['Bouquet', 'Fernleaf', 'Dukat', 'Mammoth'],
+            germinationDays: 10, fertilizeDays: 30, harvestDays: 45, waterFreq: 3,
+            companions: ['cabbage', 'onion', 'lettuce', 'cucumber'],
+            enemies: ['carrot', 'tomato'],
+            instructions: {
+                sow: "Direct sow 1/4 inch deep. Does not like being transplanted.",
+                water: "Water freely during dry spells.",
+                fertilize: "Barely needs fertilizer.",
+                yield: "Harvest leaves anytime. Harvest seed heads when they turn brown."
+            }
+        },
+        {
+            id: 'rosemary', name: 'Rosemary', emoji: '🌿',
+            varieties: ['Tuscan Blue', 'Prostrate', 'Arp', 'Spice Islands'],
+            germinationDays: 21, fertilizeDays: 60, harvestDays: 120, waterFreq: 5,
+            companions: ['cabbage', 'bean', 'carrot', 'broccoli'],
+            enemies: [],
+            instructions: {
+                sow: "Start indoors 10 weeks before frost. Slow to germinate.",
+                water: "Let soil dry out between waterings. Hates wet feet.",
+                fertilize: "Needs very little fertilizer.",
+                yield: "Snip sprigs as needed throughout the year."
+            }
+        },
+        {
+            id: 'thyme', name: 'Thyme', emoji: '🌿',
+            varieties: ['Lemon Thyme', 'Creeping Thyme', 'English Thyme', 'French Thyme', 'Woolly Thyme'],
+            germinationDays: 14, fertilizeDays: 60, harvestDays: 90, waterFreq: 5,
+            companions: ['cabbage', 'eggplant', 'potato', 'strawberry'],
+            enemies: [],
+            instructions: {
+                sow: "Sow on soil surface, needs light to germinate.",
+                water: "Drought tolerant once established.",
+                fertilize: "Poor soil actually improves the flavor.",
+                yield: "Harvest right before the plant flowers for the best flavor."
+            }
+        },
+        {
+            id: 'oregano', name: 'Oregano', emoji: '🌿',
+            varieties: ['Greek Oregano', 'Italian Oregano', 'Mexican Oregano', 'Sweet Marjoram'],
+            germinationDays: 14, fertilizeDays: 60, harvestDays: 90, waterFreq: 4,
+            companions: ['tomato', 'pepper', 'basil'],
+            enemies: [],
+            instructions: {
+                sow: "Sow on soil surface. Start indoors 6 weeks before frost.",
+                water: "Water only when the soil is completely dry.",
+                fertilize: "Do not over-fertilize, it weakens the flavor.",
+                yield: "Cut stems leaving at least 2 pairs of leaves to regrow."
+            }
+        },
+        {
+            id: 'lavender', name: 'Lavender', emoji: '🪻',
+            varieties: ['English Lavender', 'French Lavender', 'Spanish Lavender', 'Lavandin'],
+            germinationDays: 21, fertilizeDays: 60, harvestDays: 120, waterFreq: 5,
+            companions: ['cabbage', 'rose', 'fruit trees'],
+            enemies: [],
+            instructions: {
+                sow: "Seeds require cold stratification (refrigeration) before planting.",
+                water: "Requires excellent drainage. Water sparingly.",
+                fertilize: "Do not fertilize.",
+                yield: "Harvest flowers just as they open in the morning."
+            }
+        },
+        {
+            id: 'sunflower', name: 'Sunflower', emoji: '🌻',
+            varieties: ['Mammoth', 'Autumn Beauty', 'Teddy Bear', 'Sunburst'],
+            germinationDays: 10, fertilizeDays: 30, harvestDays: 90, waterFreq: 3,
+            companions: ['cucumber', 'melon', 'corn', 'squash'],
+            enemies: ['potato'],
+            instructions: {
+                sow: "Plant seeds 1 inch deep, 6 inches apart.",
+                water: "Water deeply but infrequently to encourage deep roots.",
+                fertilize: "Fertilize sparingly; too much makes stems weak.",
+                yield: "Harvest seeds when the back of the flower head turns brown."
+            }
+        },
+        {
+            id: 'marigold', name: 'Marigold', emoji: '🌼',
+            varieties: ['French Marigold', 'African Marigold', 'Signet', 'Mexican Mint Marigold'],
+            germinationDays: 7, fertilizeDays: 45, harvestDays: 50, waterFreq: 4,
+            companions: ['tomato', 'basil', 'cucumber', 'squash', 'potato'],
+            enemies: ['bean'],
+            instructions: {
+                sow: "Sow seeds on the surface of soil and lightly cover.",
+                water: "Allow soil to dry out between waterings.",
+                fertilize: "Do not fertilize, it promotes leaves over flowers.",
+                yield: "Deadhead (cut off) old flowers to get more blooms."
+            }
+        },
+        {
+            id: 'zinnia', name: 'Zinnia', emoji: '🌺',
+            varieties: ['California Giant', 'Lilliput', 'Benary\'s Giant', 'Thumbelina'],
+            germinationDays: 7, fertilizeDays: 30, harvestDays: 60, waterFreq: 3,
+            companions: ['tomato', 'pepper', 'bean', 'cucumber'],
+            enemies: [],
+            instructions: {
+                sow: "Direct sow 1/4 inch deep after last frost.",
+                water: "Water at base to prevent powdery mildew on leaves.",
+                fertilize: "Apply balanced fertilizer when buds form.",
+                yield: "Cut flowers frequently to encourage more blooming."
+            }
+        },
+        {
+            id: 'chamomile', name: 'Chamomile', emoji: '🌼',
+            varieties: ['German Chamomile', 'Roman Chamomile'],
+            germinationDays: 14, fertilizeDays: 60, harvestDays: 60, waterFreq: 3,
+            companions: ['cabbage', 'onion', 'basil'],
+            enemies: ['mint'],
+            instructions: {
+                sow: "Scatter seeds on soil surface, needs light to germinate.",
+                water: "Water regularly until established, then drought tolerant.",
+                fertilize: "Does not need fertilizer.",
+                yield: "Harvest flower heads when petals are flat or bending slightly backwards."
+            }
+        }
+    ];
+
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tab-${tab}).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function handleSearch() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const resultsContainer = document.getElementById('searchResults');
+        
+        if (query === "") {
+            resultsContainer.innerHTML = 
+                <div class="empty-state">
+                    <div class="empty-state-emoji">🌱</div>
+                    <p>Type a plant to get care info and calculate dates!</p>
+                </div>;
+            return;
+        }
+
+        const matches = plantDB.filter(p => 
+            p.name.toLowerCase().includes(query) || 
+            p.id.includes(query) ||
+            (p.varieties && p.varieties.some(v => v.toLowerCase().includes(query) || query.includes(v.toLowerCase())))
+        );
+        
+        if (matches.length === 0) {
+            resultsContainer.innerHTML = <div class="empty-state"><div class="empty-state-emoji">🧐</div><p>No plants found for "${query}". Try tomato, mint, or lettuce!</p></div>;
+            return;
+        }
+
+        resultsContainer.innerHTML = matches.map(plant => generatePlantCard(plant)).join('');
+    }
+
+    function generatePlantCard(plant) {
+        const varietiesHtml = plant.varieties ? plant.varieties.map(v => <span class="tag variety-tag">${v}</span>).join('') : '';
+        return 
+            <div class="card">
+                <div class="plant-header">
+                    <div class="plant-emoji">${plant.emoji}</div>
+                    <div>
+                        <div class="plant-title">${plant.name}</div>
+                        <div class="plant-tags">
+                            <span class="tag">💧 Water: Every ${plant.waterFreq} days</span>
+                            <span class="tag">⏱ Harvest: ${plant.harvestDays} days</span>
+                        </div>
+                    </div>
+                </div>
+                
+                ${varietiesHtml ? <div style="margin-bottom: 12px; font-size: 0.85rem; color: var(--text-light);"><strong>Includes variations:</strong><div class="plant-tags">${varietiesHtml}</div></div> : ''}
+
+                <div class="instructions">
+                    <div class="instruction-row">🌱 <strong>Sow:</strong> ${plant.instructions.sow}</div>
+                    <div class="instruction-row">💧 <strong>Water (Every ${plant.waterFreq} days):</strong> ${plant.instructions.water}</div>
+                    <div class="instruction-row">✨ <strong>Fertilize:</strong> ${plant.instructions.fertilize}</div>
+                    <div class="instruction-row">🧺 <strong>Yield:</strong> ${plant.instructions.yield}</div>
+                </div>
+
+                <div class="calculator-box">
+                    <strong style="color:var(--text-main);">📅 Set Sowing Date:</strong>
+                    <input type="date" class="date-input" onchange="calculateDates(this.value, '${plant.id}')">
+                    <div id="timeline-${plant.id}" class="timeline">
+                    </div>
+                </div>
+                <button class="btn" onclick="sharePlant('${plant.id}')" style="margin-top:15px; background:var(--secondary); color:var(--text-main);">📤 Share Plant Guide</button>
+            </div>
+        ;
+    }
+
+    function calculateDates(dateStr, plantId) {
+        const plant = plantDB.find(p => p.id === plantId);
+        if (!plant || !dateStr) return;
+
+        const baseDate = new Date(dateStr);
+        const addDays = (days) => {
+            const d = new Date(baseDate);
+            d.setDate(d.getDate() + days);
+            return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        };
+
+        const germDate = addDays(plant.germinationDays);
+        const fertDate = addDays(plant.fertilizeDays);
+        const harvDate = addDays(plant.harvestDays);
+        const sownDate = baseDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+        const timelineHtml = 
+            <div class="timeline-item"><span>🌱 Sown on:</span> <strong>${sownDate}</strong></div>
+            <div class="timeline-item"><span>🌿 Expected Germination:</span> <strong>${germDate}</strong></div>
+            <div class="timeline-item"><span>✨ First Fertilize:</span> <strong>${fertDate}</strong></div>
+            <div class="timeline-item" style="color:var(--primary);"><span>🧺 Estimated Harvest:</span> <strong>${harvDate}</strong></div>
+            <button class="btn" onclick="shareTimeline('${plant.id}', '${sownDate}', '${germDate}', '${fertDate}', '${harvDate}')" style="margin-top:15px; background:var(--accent); color:var(--text-main); font-size: 0.95rem; padding: 12px;">📅 Share Calendar</button>
+        ;
+
+        document.getElementById(timeline-${plantId}).innerHTML = timelineHtml;
+    }
+
+    function analyzeCompanions() {
+        const input = document.getElementById('seedsInput').value.toLowerCase();
+        const resultsContainer = document.getElementById('companionResults');
+        
+        if (!input) {
+            resultsContainer.innerHTML = <p style="text-align:center; color:var(--text-light);">Please enter some seeds first! 🥺</p>;
+            return;
+        }
+
+        let processedInput = input.replace(/ and /g, ',');
+        const seedNames = processedInput.split(/[,]+/).map(s => s.trim()).filter(s => s !== '');
+        
+        const matchedPlants = [];
+        const unknownSeeds = [];
+
+        seedNames.forEach(seed => {
+            const found = plantDB.find(p => 
+                p.name.toLowerCase().includes(seed) || 
+                seed.includes(p.name.toLowerCase()) ||
+                (p.varieties && p.varieties.some(v => v.toLowerCase().includes(seed) || seed.includes(v.toLowerCase())))
+            );
+            
+            if (found && !matchedPlants.some(m => m.id === found.id)) {
+                matchedPlants.push(found);
+            } else if (!found) {
+                unknownSeeds.push(seed);
+            }
+        });
+
+        if (matchedPlants.length === 0) {
+            resultsContainer.innerHTML = <div class="empty-state"><div class="empty-state-emoji">🤷‍♀️</div><p>I don't recognize any of those plants yet! Try tomato, spinach, mint, or basil.</p></div>;
+            return;
+        }
+
+        let html = ;
+        let shareText = 🤝 Garden Besties Matchmaker Results:\n\n;
+        
+        html += <button class="btn" onclick="shareCompanions()" style="margin-bottom: 15px; background: var(--secondary); color: var(--text-main);">📤 Share Match Results</button>;
+
+        let goodCombos = [];
+        let badCombos = [];
+
+        for (let i = 0; i < matchedPlants.length; i++) {
+            for (let j = i + 1; j < matchedPlants.length; j++) {
+                const p1 = matchedPlants[i];
+                const p2 = matchedPlants[j];
+
+                if (p1.companions.includes(p2.id) || p2.companions.includes(p1.id)) {
+                    goodCombos.push({p1, p2});
+                }
+                if (p1.enemies.includes(p2.id) || p2.enemies.includes(p1.id)) {
+                    badCombos.push({p1, p2});
+                }
+            }
+        }
+
+        if (badCombos.length > 0) {
+            html += <div class="card warning-card">
+                <h3 style="color:var(--danger);">🚨 Do NOT Plant Together!</h3>
+                ${badCombos.map(combo => <p style="margin-top:10px;">${combo.p1.emoji} <strong>${combo.p1.name}</strong> + ${combo.p2.emoji} <strong>${combo.p2.name}</strong></p>).join('')}
+                <p style="font-size:0.8rem; margin-top:5px; color:#d84315;">They stunt each other's growth or attract shared pests. Keep them in separate beds!</p>
+            </div>;
+            shareText += 🚨 Do NOT Plant Together:\n${badCombos.map(combo => ${combo.p1.name} + ${combo.p2.name}).join('\n')}\n\n;
+        }
+
+        if (goodCombos.length > 0) {
+            html += <div class="card match-card">
+                <h3 style="color:var(--secondary);">💕 Garden Besties!</h3>
+                ${goodCombos.map(combo => <p style="margin-top:10px;" class="combo-emoji">${combo.p1.emoji} 🤝 ${combo.p2.emoji}</p><p><strong>${combo.p1.name}</strong> and <strong>${combo.p2.name}</strong> love being planted together!</p>).join('')}
+            </div>;
+            shareText += 💕 Garden Besties:\n${goodCombos.map(combo => ${combo.p1.name} + ${combo.p2.name}).join('\n')}\n\n;
+        }
+
+        if (goodCombos.length === 0 && badCombos.length === 0 && matchedPlants.length > 1) {
+            html += <div class="card">
+                <h3>🤷‍♀️ Neutral Ground</h3>
+                <p>These plants don't explicitly help or harm each other. They are fine to be neighbors!</p>
+            </div>;
+        }
+        
+        html += <h3 style="margin: 20px 0 10px; color:var(--primary); text-align:center;">🔍 Best Friends for your Seeds</h3>;
+        html += <div class="card" style="padding: 15px;">;
+        shareText += 🔍 Individual Seed Preferences:\n;
+        
+        matchedPlants.forEach(plant => {
+            const comps = plant.companions.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ');
+            const enemies = plant.enemies.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ');
+            
+            html += <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #eee;">
+                <div style="font-weight:bold; font-size:1.1rem;">${plant.emoji} ${plant.name}</div>
+                <div style="font-size: 0.9rem; color: var(--secondary); font-weight: bold;">💕 Loves: <span style="color:var(--text-main); font-weight:normal;">${comps || 'None listed'}</span></div>
+                ${enemies ? <div style="font-size: 0.9rem; color: var(--danger); font-weight: bold;">🚫 Hates: <span style="color:var(--text-main); font-weight:normal;">${enemies}</span></div> : ''}
+            </div>;
+            
+            shareText += - ${plant.name} loves: ${comps || 'None listed'}\n;
+            if(enemies) shareText +=   (Hates: ${enemies})\n;
+        });
+        html += </div>;
+
+        html += <h3 style="margin: 20px 0 10px; color:var(--primary); text-align:center;">📋 Mini Care Guides</h3>;
+        matchedPlants.forEach(plant => {
+            html += 
+                <div class="card" style="padding: 15px;">
+                    <div style="font-weight:bold; font-size:1.2rem; margin-bottom:10px;">${plant.emoji} ${plant.name}</div>
+                    <div class="instruction-row">🌱 <strong>Sow:</strong> ${plant.instructions.sow}</div>
+                    <div class="instruction-row">💧 <strong>Water (Every ${plant.waterFreq} days):</strong> ${plant.instructions.water}</div>
+                    <div class="instruction-row">✨ <strong>Fertilize:</strong> ${plant.instructions.fertilize}</div>
+                    <div class="instruction-row">🧺 <strong>Yield:</strong> ${plant.instructions.yield}</div>
+                </div>
+            ;
+        });
+
+        if (unknownSeeds.length > 0) {
+            html += <p style="text-align:center; font-size:0.8rem; color:var(--text-light);">Note: I don't have data for ${unknownSeeds.join(', ')} yet!</p>;
+        }
+
+        resultsContainer.innerHTML = html;
+        
+        window.lastCompanionShareText = shareText + "\nVia Garden Besties App 🌿";
+    }
+    
+    function sharePlant(plantId) {
+        const plant = plantDB.find(p => p.id === plantId);
+        if (!plant) return;
+        
+        const text = 🌸 ${plant.name} Care Guide:\n\n🌱 Sow: ${plant.instructions.sow}\n💧 Water (Every ${plant.waterFreq} days): ${plant.instructions.water}\n✨ Fertilize: ${plant.instructions.fertilize}\n🧺 Yield: ${plant.instructions.yield}\n\nVia Garden Besties App 🌿;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: ${plant.name} Care Guide,
+                text: text
+            }).catch(err => console.log('Error sharing:', err));
+        } else {
+            alert("Sharing is not supported on this device/browser. Here is the data to copy:\n\n" + text);
+        }
+    }
+    
+    function shareTimeline(plantId, sown, germ, fert, harv) {
+        const plant = plantDB.find(p => p.id === plantId);
+        if (!plant) return;
+
+        const text = 📅 ${plant.name} Planting Calendar:\n\n🌱 Sown: ${sown}\n🌿 Germination: ${germ}\n✨ Fertilize: ${fert}\n💧 Water: Every ${plant.waterFreq} days\n🧺 Estimated Harvest: ${harv}\n\nVia Garden Besties App 🌿;
+
+        if (navigator.share) {
+            navigator.share({
+                title: ${plant.name} Planting Calendar,
+                text: text
+            }).catch(err => console.log('Error sharing:', err));
+        } else {
+            alert("Sharing is not supported on this device/browser. Here is the data to copy:\n\n" + text);
+        }
+    }
+
+    function shareCompanions() {
+        if (!window.lastCompanionShareText) return;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: Garden Matchmaker Results,
+                text: window.lastCompanionShareText
+            }).catch(err => console.log('Error sharing:', err));
+        } else {
+            alert("Sharing is not supported on this device/browser. Here is the data to copy:\n\n" + window.lastCompanionShareText);
+        }
+    }
+</script>
